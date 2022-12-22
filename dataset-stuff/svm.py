@@ -33,15 +33,15 @@ def svm_training(datasetRaw, traintest):
     if(traintest == 0.0):
         x = dataset.iloc[:, :-1]
         y = dataset.iloc[:,dataset.shape[1]-1]
-        #x = sc.fit_transform(x)        
+        x = sc.fit_transform(x)        
         ypred = clf.fit(x, y).predict(x)
         cm = confusion_matrix(y, ypred)
         accuracy = accuracy_score(y, ypred)
 
     else:
         xtrain, xtest , ytrain, ytest = train_test_split(dataset.iloc[:, :-1], dataset.iloc[:,dataset.shape[1]-1], test_size=traintest, random_state=0)
-        #xtrain = sc.fit_transform(xtrain)
-        #xtest = sc.transform(xtest)
+        xtrain = sc.fit_transform(xtrain)
+        xtest = sc.transform(xtest)
         clf.fit(xtrain, ytrain)
         ypred = clf.predict(xtest)
         cm = confusion_matrix(ytest, ypred)
