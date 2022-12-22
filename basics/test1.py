@@ -23,6 +23,7 @@ slider = st.slider('slider', 0, 10, (3, 7))
 
 left_column, right_column = st.columns(2)
 right_column.button('hi')
+
 with left_column:
     chosen = st.radio('radio', ['a', 'b', 'c'])
     st.write('You selected', chosen)
@@ -35,3 +36,13 @@ for i in range(100):
     time.sleep(0.1)
 
 'and now we\'re done'
+
+with st.sidebar.form("Input"):
+    queryText = st.text_area("SQL to execute:", height=3, max_chars=None)
+    btnResult = st.form_submit_button('Run')
+
+if btnResult:
+    st.sidebar.text('Button pushed')
+
+    # run query
+    st.write(queryText)
