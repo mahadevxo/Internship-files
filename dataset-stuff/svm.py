@@ -1,4 +1,4 @@
-def svm_training(datasetRaw, traintest):
+def svm_training(datasetRaw):
     import pandas as pd
     import numpy as np
     import matplotlib.pyplot as plt
@@ -28,26 +28,12 @@ def svm_training(datasetRaw, traintest):
     param = {'kernel': ('linear', 'rbf', 'poly'), 'C': [1, 10], 'degree': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 'gamma': ('auto', 'scale')}
     clf = GridSearchCV(SVC(probability=True), param, cv=5, refit=True)
 
-    cm, accuracy = None, None
-
-    if(traintest == 0.0):
-        x = dataset.iloc[:, :-1]
-        y = dataset.iloc[:,dataset.shape[1]-1]
-        x = sc.fit_transform(x)        
-        ypred = clf.fit(x, y).predict(x)
-        cm = confusion_matrix(y, ypred)
-        accuracy = accuracy_score(y, ypred)
-
-    else:
-        xtrain, xtest , ytrain, ytest = train_test_split(dataset.iloc[:, :-1], dataset.iloc[:,dataset.shape[1]-1], test_size=traintest, random_state=0)
-        xtrain = sc.fit_transform(xtrain)
-        xtest = sc.transform(xtest)
-        clf.fit(xtrain, ytrain)
-        ypred = clf.predict(xtest)
-        cm = confusion_matrix(ytest, ypred)
-        accuracy = accuracy_score(ytest, ypred)
+    x = dataset.iloc[:, :-1]
+    y = dataset.iloc[:,dataset.shape[1]-1]
+    x = sc.fit_transform(x)        
+    ypred = clf.fit(x, y).predict(x)
  
-    return cm, (str(accuracy*100)+"%"), clf
+    return clf
 
 def svm_testing(datasetRaw, model):
     import pandas as pd

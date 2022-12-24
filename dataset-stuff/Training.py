@@ -5,19 +5,16 @@ class main:
     def __init__(self):
         st.header("Support Vector Machines (SVM) Training")
         st.sidebar.header("This page is for training the models")
-        traintest = st.slider("Testing Sample", 0.0, 1.0, 0.2, 0.1)
         file = st.file_uploader("Upload a CSV file for prediction", type=["csv", "data"])
-        ret = st.button("Predict", on_click=(self.predictor(file, traintest)))
+        ret = st.button("Predict", on_click=(self.predictor(file)))
         
 
-    def predictor(self, file, traintest):
+    def predictor(self, file):
         import svm
         if file != None:
             x = st.empty()
             x.write("Predicting...")
-            cm, accuracy, clf= svm.svm_training(file, traintest)
-            st.write("Confusion Matrix: ", cm)
-            st.write("Accuracy: ", accuracy)
+            clf= svm.svm_training(file)
             x.write("Done!")
             save = st.button("Save Model", on_click = self.save(file, clf))
             return None

@@ -4,7 +4,7 @@ import streamlit as st
 st.header("Support Vector Machines (SVM) Testing")
 st.sidebar.header("This page is for testing the models")
 
-def predictor(file, model):
+def predict(file, model):
     import svm
     if file != None:
             x = st.empty()
@@ -24,4 +24,4 @@ for file in files:
 model = st.selectbox("Select a model", models)
 print(model)
 file = st.file_uploader("Upload a CSV file for prediction", type=["csv", "data"])
-ret = st.button("Predict", on_click=(predictor(file, model)))
+ret = st.button("Predict", on_click=(predict(file, model)))
