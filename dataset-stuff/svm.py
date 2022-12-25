@@ -31,7 +31,7 @@ def svm_training(datasetRaw):
     x = dataset.iloc[:, :-1]
     y = dataset.iloc[:,dataset.shape[1]-1]
     x = sc.fit_transform(x)        
-    ypred = clf.fit(x, y).predict(x)
+    ypred = clf.fit(x, y)
  
     return clf
 
