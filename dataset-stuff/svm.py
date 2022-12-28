@@ -1,80 +1,51 @@
-def svm_training(datasetRaw):
+def training(dataset, contains_id):
     import pandas as pd
     import numpy as np
-    import matplotlib.pyplot as plt
-    from sklearn.model_selection import train_test_split
     from sklearn.svm import SVC
-    from sklearn.metrics import accuracy_score
-    from sklearn.metrics import confusion_matrix
+    from sklearn.metrics import confusion_matrix, classification_report
     from sklearn.preprocessing import StandardScaler
-    from sklearn.preprocessing import LabelEncoder
     from sklearn.model_selection import GridSearchCV
 
-    dataset = pd.read_csv(datasetRaw)
+    dataset = pd.read_csv(dataset)
     dataset.replace('?', np.nan, inplace=True)
     dataset.dropna(axis = 1,inplace=True)
 
-    datatype = dataset.apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all())
-    newdata = []
-    for data in datatype:
-        newdata.append(datatype[1])
-    datatype = newdata
-    le = LabelEncoder()
-    for i in range(len(datatype)):
-        if datatype[i] == False:
-            dataset.iloc[:,i] = le.fit_transform(dataset.iloc[:,i])  
+    if contains_id:
+        dataset.drop(dataset.columns[0], axis=1, inplace=True)
 
-    sc = StandardScaler()
-    param = {'kernel': ('linear', 'rbf', 'poly'), 'C': [1, 10], 'degree': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 'gamma': ('auto', 'scale')}
-    clf = GridSearchCV(SVC(probability=True), param, cv=5, refit=True)
+    X = dataset.iloc[:, :-1].values
+    y = dataset.iloc[:, -1].values
 
-    x = dataset.iloc[:, :-1]
-    y = dataset.iloc[:,dataset.shape[1]-1]
-    x = sc.fit_transform(x)        
-    ypred = clf.fit(x, y)
- 
-    return clf
+    X = StandardScaler().fit_transform(X)
 
-def svm_testing(datasetRaw, model):
+    params = {'kernel': ['linear', 'rbf', 'poly'], 'C': range(0, 1000, 50), 'degree': [1, 2, 3, 4, 5], 'gamma': [1, 0.1]}
+    model = GridSearchCV(SVC(), params, cv = 3, refit=True, verbose=3)
+
+    model.fit(X, y)
+    return model
+
+def save(model, dataset):
+    import pickle
+    dataset = dataset.name
+    dataset = dataset.replace(".csv", ".pkl")
+    pickle.dump(model, open(dataset, 'wb'))
+
+def testing(dataset, model):
     import pandas as pd
     import numpy as np
-    import matplotlib.pyplot as plt
-    from sklearn.model_selection import train_test_split
-    from sklearn.metrics import accuracy_score
-    from sklearn.metrics import confusion_matrix
+    from sklearn.svm import SVC
+    from sklearn.metrics import confusion_matrix, classification_report
     from sklearn.preprocessing import StandardScaler
-    from sklearn.preprocessing import LabelEncoder
     from sklearn.model_selection import GridSearchCV
-    import pickle
 
-    dataset = pd.read_csv(datasetRaw)
-    dataset.replace('?', np.nan, inplace=True)
-    dataset.dropna(axis = 1 ,inplace=True)
+    dataset = pd.read_csv(dataset)
+    dataset.replace('?', np.nan, inplace=True)  
+    dataset.dropna(axis = 1,inplace=True)
 
-    datatype = dataset.apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all())
-    newdata = []
-    for data in datatype:
-        newdata.append(datatype[1])
-    datatype = newdata
-    le = LabelEncoder()
-    for i in range(len(datatype)):
-        if datatype[i] == False:
-            dataset.iloc[:,i] = le.fit_transform(dataset.iloc[:,i])  
+    X = dataset.iloc[:, :-1].values
+    y = dataset.iloc[:, -1].values
 
-    x = dataset.iloc[:, :-1]
-    y = dataset.iloc[:,dataset.shape[1]-1]
+    X = StandardScaler().fit_transform(X)
 
-    sc = StandardScaler()
-    x = sc.fit_transform(x)
-    x = sc.transform(x)
-
-    clf = pickle.load(open(model, 'rb'))
-
-    ypred = clf.predict(x)
-    accuracy = (accuracy_score(y, ypred))*100
-
-    cm = confusion_matrix(y, ypred)
-    accuracy = accuracy_score(y, ypred)
-    print()
-
-    return cm, (str(accuracy*100)+"%")
+    ypred = model.predict(X)
+    return classification_report(y, ypred, zero_division=1)
